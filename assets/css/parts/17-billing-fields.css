@@ -1,0 +1,46 @@
+/* =====================================================
+   ALIGNEMENT DES CHAMPS DE FACTURATION (50/50)
+   ===================================================== */
+.woocommerce-billing-fields .form-row-wide {
+    width: 100%;
+    clear: both;
+    margin-right: 0;
+    float: none;
+}
+
+.woocommerce-billing-fields .form-row-first {
+    width: calc(50% - 20px);
+    float: left;
+    clear: left;
+}
+
+.woocommerce-billing-fields .form-row-last {
+    width: calc(50% - 20px);
+    float: right;
+    clear: right;
+    margin-right: 0;
+}
+
+.woocommerce-billing-fields__field-wrapper::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Masquer l'étoile rouge sur les champs facultatifs */
+.woocommerce-billing-fields .form-row label .optional {
+    font-weight: 400;
+    color: #888;
+    font-size: 13px;
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+    .woocommerce-billing-fields .form-row-first,
+    .woocommerce-billing-fields .form-row-last,
+    .woocommerce-billing-fields .form-row-wide {
+        width: 100%;
+        float: none;
+        margin-right: 0;
+    }
+}

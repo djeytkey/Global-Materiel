@@ -1,0 +1,21 @@
+/* PRIX EN PROMOTION SUR 2 LIGNES */
+.woocommerce div.product p.price,
+.woocommerce div.product span.price,
+.woocommerce ul.products li.product .price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.woocommerce div.product p.price del,
+.woocommerce div.product span.price del,
+.woocommerce ul.products li.product .price del {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.woocommerce div.product p.price ins,
+.woocommerce div.product span.price ins,
+.woocommerce ul.products li.product .price ins {
+    display: block;
+}

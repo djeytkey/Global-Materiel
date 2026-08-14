@@ -1,0 +1,45 @@
+/* =====================================================
+   BREADCRUMB PAGE DE CONNEXION
+   ===================================================== */
+.custom-login-breadcrumb {
+    margin-bottom: 25px;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.custom-login-breadcrumb a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.custom-login-breadcrumb a:hover {
+    color: #f07d00;
+    text-decoration: underline;
+}
+
+.custom-login-breadcrumb .breadcrumb-separator {
+    margin: 0 8px;
+    color: #ccc;
+    font-size: 16px;
+}
+
+.custom-login-breadcrumb .breadcrumb-current {
+    color: #f07d00;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .custom-login-breadcrumb {
+        margin-bottom: 15px;
+        padding: 10px 0;
+        font-size: 13px;
+    }
+    
+    .custom-login-breadcrumb .breadcrumb-separator {
+        margin: 0 5px;
+    }
+}

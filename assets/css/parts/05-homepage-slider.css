@@ -1,0 +1,118 @@
+/* SLIDER PAGE D'ACCUEIL - FULLWIDTH RESPONSIVE */
+.homepage-slider-section {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.homepage-slider-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+.homepage-swiper {
+    width: 100%;
+    position: relative;
+}
+
+.homepage-swiper .swiper-wrapper {
+    width: 100%;
+}
+
+.homepage-swiper .swiper-slide {
+    width: 100%;
+    position: relative;
+}
+
+.homepage-slider-image-wrapper {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.homepage-slider-image-wrapper::before {
+    content: '';
+    display: block;
+    padding-top: 26.04%;
+}
+
+.homepage-slider-image-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.homepage-swiper .swiper-pagination {
+    bottom: 20px;
+    z-index: 10;
+}
+
+.homepage-swiper .swiper-pagination-bullet {
+    width: 12px;
+    height: 12px;
+    background: #ffeb3b;
+    opacity: 1;
+    transition: all 0.3s ease;
+    margin: 0 5px !important;
+}
+
+.homepage-swiper .swiper-pagination-bullet:hover {
+    background: #f07d00;
+}
+
+.homepage-swiper .swiper-pagination-bullet-active {
+    background: #f07d00;
+    opacity: 1;
+    width: 30px;
+    border-radius: 6px;
+}
+
+@media (max-width: 991px) {
+    .homepage-slider-image-wrapper::before {
+        padding-top: 30%;
+    }
+    .homepage-swiper .swiper-pagination {
+        bottom: 15px;
+    }
+}
+
+@media (max-width: 767px) {
+    .homepage-slider-image-wrapper::before {
+        padding-top: 38%;
+    }
+    .homepage-swiper .swiper-pagination {
+        bottom: 8px;
+    }
+    .homepage-swiper .swiper-pagination-bullet {
+        width: 10px;
+        height: 10px;
+    }
+    .homepage-swiper .swiper-pagination-bullet-active {
+        width: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .homepage-slider-image-wrapper::before {
+        padding-top: 42%;
+    }
+    .homepage-swiper .swiper-pagination {
+        bottom: 6px;
+    }
+    .homepage-swiper .swiper-pagination-bullet {
+        width: 9px;
+        height: 9px;
+    }
+    .homepage-swiper .swiper-pagination-bullet-active {
+        width: 22px;
+    }
+}

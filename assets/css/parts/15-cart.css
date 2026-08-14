@@ -1,0 +1,281 @@
+/* =====================================================
+   STYLE DU PANIER PERSONNALISÉ
+   ===================================================== */
+
+/* Masquer les messages de mise à jour par défaut pour un rendu plus propre */
+.custom-cart-form .woocommerce-message {
+    margin-bottom: 20px;
+}
+
+/* En-tête du tableau */
+.custom-cart-form .shop_table thead th {
+    text-align: left;
+    padding: 15px;
+    border-bottom: 2px solid #f0f0f0;
+    font-weight: 600;
+    color: #333;
+}
+
+.custom-cart-form .shop_table thead th.product-quantity,
+.custom-cart-form .shop_table thead th.product-remove {
+    text-align: center;
+    width: 150px;
+}
+
+/* Lignes du tableau */
+.custom-cart-form .shop_table tbody tr.cart_item {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.custom-cart-form .shop_table tbody tr.cart_item td {
+    padding: 20px 15px;
+    vertical-align: middle;
+}
+
+/* Colonne Nom du produit (Image + Infos) */
+.custom-cart-form .product-name {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.custom-cart-form .product-name a:first-child img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 4px;
+    border: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.custom-cart-form .cart-product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.custom-cart-form .cart-product-info > a {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.custom-cart-form .cart-product-info > a:hover {
+    color: #f07d00;
+}
+
+.custom-cart-form .cart-product-info .product-sku {
+    font-size: 13px;
+    color: #888;
+    font-weight: 500;
+}
+
+/* Colonne Quantité */
+.custom-cart-form .product-quantity {
+    text-align: center;
+}
+
+.custom-cart-form .product-quantity .quantity {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.custom-cart-form .product-quantity .quantity input[type="button"] {
+    width: 35px;
+    height: 35px;
+    background: #f8f9fa;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    transition: background 0.3s ease;
+}
+
+.custom-cart-form .product-quantity .quantity input[type="button"]:hover {
+    background: #f07d00;
+    color: #fff;
+}
+
+.custom-cart-form .product-quantity .quantity input[type="number"] {
+    width: 50px;
+    height: 35px;
+    border: none;
+    /*border-left: 1px solid #e0e0e0;*/
+    /*border-right: 1px solid #e0e0e0;*/
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    -moz-appearance: textfield;
+}
+
+.custom-cart-form .product-quantity .quantity input[type="number"]::-webkit-inner-spin-button,
+.custom-cart-form .product-quantity .quantity input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Colonne Supprimer */
+.custom-cart-form .product-remove {
+    text-align: center;
+}
+
+.custom-cart-form .product-remove .remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #f5f5f5;
+    color: #999;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+.custom-cart-form .product-remove .remove:hover {
+    background: #f07d00;
+    color: #fff;
+}
+
+/* Actions en bas du tableau */
+.custom-cart-form .actions {
+    padding: 25px 15px !important;
+    border-top: 2px solid #f0f0f0;
+    text-align: right;
+}
+
+/* Cacher le bouton de mise à jour natif (il est déclenché automatiquement par JS ou on le garde discret) */
+.custom-cart-form .update-cart-hidden {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+}
+
+/* Conteneur des boutons d'action */
+.cart-btns-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.cart-btns-actions .button {
+    /*padding: 12px 25px;*/
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+}
+
+.cart-btns-actions .back-to-store {
+    background: #f5f5f5;
+    color: #fff !important;
+}
+
+.cart-btns-actions .back-to-store:hover {
+    background: #e0e0e0;
+}
+
+.cart-btns-actions .checkout-btn {
+    background: #f07d00 !important;
+    color: #fff !important;
+}
+
+.cart-btns-actions .checkout-btn:hover {
+    background: #d66a00 !important;
+}
+
+/* Panier vide */
+.cart-is-empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px dashed #ccc;
+}
+
+.cart-is-empty .cart-empty-message {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.cart-is-empty .back-to-shop {
+    background: #f07d00;
+    color: #fff !important;
+    padding: 12px 30px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Responsive Mobile */
+@media (max-width: 768px) {
+    .custom-cart-form .shop_table thead {
+        display: none;
+    }
+    
+    .custom-cart-form .shop_table tbody tr.cart_item {
+        display: block;
+        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+    }
+    
+    .custom-cart-form .shop_table tbody tr.cart_item td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .custom-cart-form .shop_table tbody tr.cart_item td:last-child {
+        border-bottom: none;
+    }
+    
+    .custom-cart-form .shop_table tbody tr.cart_item td::before {
+        content: attr(data-title);
+        font-weight: 600;
+        color: #333;
+        margin-right: 15px;
+    }
+    
+    .custom-cart-form .product-name {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .custom-cart-form .product-name a:first-child img {
+        width: 100%;
+        max-width: 150px;
+        height: auto;
+    }
+    
+    .cart-btns-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .cart-btns-actions .button {
+        width: 100%;
+        text-align: center;
+    }
+}

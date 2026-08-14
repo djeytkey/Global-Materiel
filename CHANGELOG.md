@@ -5,6 +5,20 @@ Toutes les modifications notables de ce plugin sont documentées dans ce fichier
 Le format s’inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 et ce projet adhère au [Versionnement Sémantique](https://semver.org/lang/fr/).
 
+## [1.1.0] — 2026-08-14
+
+### Modifié
+- Les personnalisations PHP sont réparties en classes (`GM_Checkout`, `GM_Cart`, `GM_Shop`, etc.), chargées par `GM_Plugin`. Shortcodes, AJAX et hooks inchangés.
+- Le CSS de `global-materiel.css` est découpé dans `assets/css/parts/` (un fichier par bloc commenté). `custom.css` (TheGem) n’est pas scindé.
+
+## [1.0.2] — 2026-08-14
+
+### Corrigé
+- Checkout : la quantité s’incrémentait de 2 (handlers ± du checkout et du mini-panier qui se cumulaient).
+
+### Ajouté
+- Bouton **Mettre à jour** sous le tableau `woocommerce-checkout-review-order-table`, visible uniquement si au moins une quantité a changé (même logique que le mini-panier). Au clic, les quantités sont enregistrées puis la page se recharge.
+
 ## [1.0.1] — 2026-08-13
 
 ### Corrigé

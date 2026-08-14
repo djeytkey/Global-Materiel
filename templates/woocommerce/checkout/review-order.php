@@ -45,7 +45,7 @@ defined( 'ABSPATH' ) || exit;
                     <td class="product-quantity">
                         <div class="quantity-controls" data-cart-key="<?php echo esc_attr( $cart_item_key ); ?>" style="display:flex; align-items:center; gap:5px;">
                             <button type="button" class="qty-minus">−</button>
-                            <input type="number" name="cart[<?php echo esc_attr( $cart_item_key ); ?>][qty]" value="<?php echo esc_attr( $cart_item['quantity'] ); ?>" min="1" class="qty-input">
+                            <input type="number" name="cart[<?php echo esc_attr( $cart_item_key ); ?>][qty]" value="<?php echo esc_attr( $cart_item['quantity'] ); ?>" min="1" class="qty-input" data-initial-qty="<?php echo esc_attr( $cart_item['quantity'] ); ?>" data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>">
                             <button type="button" class="qty-plus">+</button>
                         </div>
                     </td>

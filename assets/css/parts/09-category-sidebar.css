@@ -1,0 +1,166 @@
+/* SIDEBAR CATÉGORIES - STYLE ACCORDÉON THEGEM */
+.widget_text.widget-inner {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.block-title-widget {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.block-title-widget h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.textwidget.custom-html-widget {
+    padding: 0;
+}
+
+.wpb_category_n_menu_accordion {
+    font-family: inherit;
+}
+
+.wpb_category_n_menu_accordion_list,
+.wpb_category_n_menu_accordion_list ul.children {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.wpb_category_n_menu_accordion_list li.cat-item {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.wpb_category_n_menu_accordion_list li.cat-item:last-child {
+    border-bottom: none;
+}
+
+.wpb_category_n_menu_accordion_list > li.cat-item > a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px 12px 18px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: #ffffff;
+}
+
+.wpb_category_n_menu_accordion_list > li.cat-item.active > a,
+.wpb_category_n_menu_accordion_list > li.cat-item.current-cat > a,
+.wpb_category_n_menu_accordion_list > li.cat-item.current-cat-parent > a {
+    background: #fff8f0;
+    color: #f07d00;
+    font-weight: 600;
+}
+
+.wpb_category_n_menu_accordion_list > li.cat-item > a:hover {
+    background: #fff8f0;
+    color: #f07d00;
+}
+
+.wpb_category_n_menu_accordion_list li.cat-item > a .cat-name {
+    flex-grow: 1;
+}
+
+.wpb-submenu-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: #999;
+    transition: transform 0.3s ease, color 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.wpb_category_n_menu_accordion_list li.cat-item > a:hover .wpb-submenu-indicator,
+.wpb_category_n_menu_accordion_list li.cat-item.active > a .wpb-submenu-indicator,
+.wpb_category_n_menu_accordion_list li.cat-item.current-cat > a .wpb-submenu-indicator,
+.wpb_category_n_menu_accordion_list li.cat-item.current-cat-parent > a .wpb-submenu-indicator {
+    color: #f07d00;
+}
+
+.wpb_category_n_menu_accordion_list li.cat-item.active > a .wpb-submenu-indicator svg,
+.wpb_category_n_menu_accordion_list li.cat-item.current-cat > a .wpb-submenu-indicator svg,
+.wpb_category_n_menu_accordion_list li.cat-item.current-cat-parent > a .wpb-submenu-indicator svg {
+    transform: rotate(180deg);
+}
+
+.wpb_category_n_menu_accordion_list ul.children {
+    background: #ffffff;
+    border-top: 1px solid #f0f0f0;
+}
+
+.wpb_category_n_menu_accordion_list ul.children li.cat-item > a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px 10px 40px;
+    font-size: 14px;
+    font-weight: 400 !important;
+    color: #555;
+    background: #ffffff;
+    border-left: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.wpb_category_n_menu_accordion_list ul.children li.cat-item > a:hover,
+.wpb_category_n_menu_accordion_list ul.children li.cat-item.current-cat > a {
+    color: #f07d00;
+    background: #ffffff;
+    font-weight: 500 !important;
+}
+
+.wpb_category_n_menu_accordion_list ul.children ul.children li.cat-item > a {
+    padding-left: 60px;
+    font-size: 14px;
+    font-weight: 400;
+    background: #ffffff;
+}
+
+.wpb_category_n_menu_accordion_list ul.children ul.children li.cat-item > a:hover {
+    padding-left: 60px;
+    color: #f07d00;
+}
+
+.wpb_category_n_menu_accordion_list ul.children ul.children ul.children li.cat-item > a {
+    padding-left: 80px;
+    font-size: 14px;
+    font-weight: 400;
+    background: #ffffff;
+}
+
+.wpb_category_n_menu_accordion_list ul.children ul.children ul.children li.cat-item > a:hover {
+    padding-left: 80px;
+    color: #f07d00;
+}
+
+@media (max-width: 767px) {
+    .block-title-widget h2 {
+        font-size: 14px;
+    }
+    .wpb_category_n_menu_accordion_list > li.cat-item > a {
+        padding: 12px 15px 12px 13px;
+    }
+    .wpb_category_n_menu_accordion_list ul.children li.cat-item > a {
+        padding-left: 30px;
+    }
+    .wpb_category_n_menu_accordion_list ul.children ul.children li.cat-item > a {
+        padding-left: 45px;
+    }
+}

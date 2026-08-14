@@ -3,7 +3,7 @@
  * Plugin Name:       Global Matériel
  * Plugin URI:        https://wa.me/212689385061
  * Description:       Personnalisations Global Matériel (WooCommerce, shortcodes, checkout, styles et scripts) extraites du thème enfant TheGem.
- * Version:           1.0.1
+ * Version:           1.1.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Tarik BOUKJIJ
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GM_VERSION', '1.0.1' );
+define( 'GM_VERSION', '1.1.0' );
 define( 'GM_PLUGIN_FILE', __FILE__ );
 define( 'GM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -45,7 +45,8 @@ function gm_bootstrap() {
 		return;
 	}
 
-	require_once GM_PLUGIN_DIR . 'includes/customizations.php';
+	require_once GM_PLUGIN_DIR . 'includes/class-gm-plugin.php';
+	GM_Plugin::instance();
 }
 
 function gm_woocommerce_missing_notice() {

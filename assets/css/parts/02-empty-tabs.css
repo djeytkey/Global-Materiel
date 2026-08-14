@@ -1,0 +1,16 @@
+/* MASQUER LES ONGLETS THEGEM VIDES */
+.thegem-tab-empty,
+.thegem-panel-empty {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+.thegem-all-tabs-empty {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+.thegem-tab-panel:empty,
+.tab-panel:empty {
+    display: none !important;
+}
