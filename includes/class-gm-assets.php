@@ -113,14 +113,20 @@ class GM_Assets {
 		);
 
 		foreach ( $modes as $value => $label ) {
+			$is_current = ( $value === $mode );
+			$item_title = esc_html( $label );
+			if ( $is_current ) {
+				$item_title = '<span class="gm-cache-bust-check" aria-hidden="true">✓</span> ' . $item_title;
+			}
+
 			$wp_admin_bar->add_node(
 				array(
 					'id'     => 'gm-cache-bust-mode-' . $value,
 					'parent' => 'gm-cache-bust-modes',
-					'title'  => $label,
+					'title'  => $item_title,
 					'href'   => $this->get_action_url( 'mode', $value ),
 					'meta'   => array(
-						'class' => ( $value === $mode ) ? 'gm-cache-bust-current' : '',
+						'class' => $is_current ? 'gm-cache-bust-current' : '',
 					),
 				)
 			);

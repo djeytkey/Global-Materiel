@@ -15,9 +15,17 @@
 	color: #a7aaad;
 }
 
-#wpadminbar #wp-admin-bar-gm-cache-bust .gm-cache-bust-current > .ab-item,
-#wpadminbar #wp-admin-bar-gm-cache-bust .gm-cache-bust-current > .ab-item:hover,
-#wpadminbar #wp-admin-bar-gm-cache-bust .gm-cache-bust-current > .ab-item:focus {
-	color: #fff;
-	background: #2271b1;
+#wpadminbar .quicklinks .menupop ul li.gm-cache-bust-current > a.ab-item,
+#wpadminbar .quicklinks .menupop.hover ul li.gm-cache-bust-current > a.ab-item,
+#wpadminbar .quicklinks .menupop ul li.gm-cache-bust-current > a.ab-item:hover,
+#wpadminbar .quicklinks .menupop ul li.gm-cache-bust-current > a.ab-item:focus,
+#wpadminbar #wp-admin-bar-gm-cache-bust-mode-load.gm-cache-bust-current > .ab-item,
+#wpadminbar #wp-admin-bar-gm-cache-bust-mode-hour.gm-cache-bust-current > .ab-item {
+	color: #fff !important;
+	background: #2271b1 !important;
+}
+
+#wpadminbar li.gm-cache-bust-current .gm-cache-bust-check {
+	font-weight: 600;
+	margin-right: 4px;
 }
