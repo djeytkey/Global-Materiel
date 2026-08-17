@@ -75,7 +75,7 @@ class GM_Assets {
 		$title  = '<div class="gm-cache-bust-wrap ' . esc_attr( $wrap_class ) . '">';
 		$title .= '<span class="gm-cache-bust-label">';
 		$title .= '<span class="ab-icon" aria-hidden="true"></span>';
-		$title .= '<span class="gm-cache-bust-label-text">' . esc_html__( 'Bypass cache', 'global-materiel' ) . '</span>';
+		$title .= '<span class="gm-cache-bust-label-text">' . esc_html__( 'Désactive le cache CSS/JS', 'global-materiel' ) . '</span>';
 		$title .= '</span>';
 		$title .= '<label class="gm-cache-bust-switch" for="gm-cache-bust-toggle">';
 		$title .= '<input type="checkbox" id="gm-cache-bust-toggle" ' . checked( $enabled, true, false ) . ' />';
