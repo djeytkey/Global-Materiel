@@ -1335,6 +1335,7 @@ div#sw_related_upsell_widget-2 .sku {
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-height: 50px;
 }
 
 .home .item.product .item-content {
