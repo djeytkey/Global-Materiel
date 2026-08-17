@@ -71,6 +71,11 @@ class GM_Assets {
 		$enabled = $this->is_cache_bust_enabled();
 		$mode    = $this->get_cache_bust_mode();
 		$wrap_class = $enabled ? 'is-on' : 'is-off';
+		$modes   = array(
+			self::MODE_LOAD => __( 'Chaque chargement', 'global-materiel' ),
+			self::MODE_HOUR => __( 'Chaque heure', 'global-materiel' ),
+		);
+		$current_label = isset( $modes[ $mode ] ) ? $modes[ $mode ] : $modes[ self::MODE_LOAD ];
 
 		$title  = '<div class="gm-cache-bust-wrap ' . esc_attr( $wrap_class ) . '">';
 		$title .= '<span class="gm-cache-bust-label">';
@@ -82,10 +87,20 @@ class GM_Assets {
 		$title .= '<span class="gm-cache-bust-slider"></span>';
 		$title .= '<span class="screen-reader-text">' . esc_html__( 'Activer le bypass cache CSS/JS', 'global-materiel' ) . '</span>';
 		$title .= '</label>';
-		$title .= '<select id="gm-cache-bust-mode" class="gm-cache-bust-select"' . disabled( $enabled, false, false ) . '>';
-		$title .= '<option value="' . esc_attr( self::MODE_LOAD ) . '" ' . selected( $mode, self::MODE_LOAD, false ) . '>' . esc_html__( 'Chaque chargement', 'global-materiel' ) . '</option>';
-		$title .= '<option value="' . esc_attr( self::MODE_HOUR ) . '" ' . selected( $mode, self::MODE_HOUR, false ) . '>' . esc_html__( 'Chaque heure', 'global-materiel' ) . '</option>';
-		$title .= '</select>';
+		$title .= '<div class="gm-cache-bust-dropdown" id="gm-cache-bust-mode" data-value="' . esc_attr( $mode ) . '">';
+		$title .= '<button type="button" class="gm-cache-bust-dropdown-toggle" aria-expanded="false" aria-haspopup="listbox">';
+		$title .= '<span class="gm-cache-bust-dropdown-label">' . esc_html( $current_label ) . '</span>';
+		$title .= '<span class="gm-cache-bust-chevron" aria-hidden="true"></span>';
+		$title .= '</button>';
+		$title .= '<ul class="gm-cache-bust-dropdown-menu" role="listbox">';
+		foreach ( $modes as $value => $label ) {
+			$is_selected = ( $value === $mode );
+			$title      .= '<li class="gm-cache-bust-dropdown-option' . ( $is_selected ? ' is-selected' : '' ) . '" role="option" data-value="' . esc_attr( $value ) . '" aria-selected="' . ( $is_selected ? 'true' : 'false' ) . '">';
+			$title      .= esc_html( $label );
+			$title      .= '</li>';
+		}
+		$title .= '</ul>';
+		$title .= '</div>';
 		$title .= '</div>';
 
 		$wp_admin_bar->add_node(
