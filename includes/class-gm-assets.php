@@ -92,14 +92,14 @@ class GM_Assets {
 		$title .= '<span class="gm-cache-bust-dropdown-label">' . esc_html( $current_label ) . '</span>';
 		$title .= '<span class="gm-cache-bust-chevron" aria-hidden="true"></span>';
 		$title .= '</button>';
-		$title .= '<ul class="gm-cache-bust-dropdown-menu" role="listbox">';
+		$title .= '<div class="gm-cache-bust-dropdown-menu" role="listbox" hidden>';
 		foreach ( $modes as $value => $label ) {
 			$is_selected = ( $value === $mode );
-			$title      .= '<li class="gm-cache-bust-dropdown-option' . ( $is_selected ? ' is-selected' : '' ) . '" role="option" data-value="' . esc_attr( $value ) . '" aria-selected="' . ( $is_selected ? 'true' : 'false' ) . '">';
+			$title      .= '<div class="gm-cache-bust-dropdown-option' . ( $is_selected ? ' is-selected' : '' ) . '" role="option" data-value="' . esc_attr( $value ) . '" aria-selected="' . ( $is_selected ? 'true' : 'false' ) . '">';
 			$title      .= esc_html( $label );
-			$title      .= '</li>';
+			$title      .= '</div>';
 		}
-		$title .= '</ul>';
+		$title .= '</div>';
 		$title .= '</div>';
 		$title .= '</div>';
 
@@ -127,7 +127,7 @@ class GM_Assets {
 			wp_enqueue_style(
 				'gm-admin-bar-cache-bust',
 				GM_PLUGIN_URL . 'assets/css/admin-bar-cache-bust.css',
-				array(),
+				array( 'admin-bar' ),
 				(string) filemtime( $css )
 			);
 		}

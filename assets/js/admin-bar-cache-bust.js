@@ -15,6 +15,7 @@
 
 		var trigger = dropdown.querySelector('.gm-cache-bust-dropdown-toggle');
 		var label = dropdown.querySelector('.gm-cache-bust-dropdown-label');
+		var menu = dropdown.querySelector('.gm-cache-bust-dropdown-menu');
 		var options = dropdown.querySelectorAll('.gm-cache-bust-dropdown-option');
 
 		function getMode() {
@@ -36,11 +37,17 @@
 		function closeDropdown() {
 			dropdown.classList.remove('is-open');
 			trigger.setAttribute('aria-expanded', 'false');
+			if (menu) {
+				menu.setAttribute('hidden', 'hidden');
+			}
 		}
 
 		function openDropdown() {
 			dropdown.classList.add('is-open');
 			trigger.setAttribute('aria-expanded', 'true');
+			if (menu) {
+				menu.removeAttribute('hidden');
+			}
 		}
 
 		function setOnState(isOn) {
