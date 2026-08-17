@@ -18,13 +18,13 @@ class GM_Assets {
 	private $bust_timestamp = '';
 
 	public function __construct() {
+		add_action( 'init', array( $this, 'handle_admin_bar_action' ), 1 );
 		add_action( 'init', array( $this, 'force_asset_version_bust' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'gm_enqueue_custom_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'gm_enqueue_custom_styles' ) );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_item' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_admin_bar_assets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_bar_assets' ) );
-		add_action( 'wp_ajax_gm_save_cache_bust', array( $this, 'ajax_save_cache_bust' ) );
 	}
 
 	public function is_cache_bust_enabled() {
@@ -70,49 +70,97 @@ class GM_Assets {
 
 		$enabled = $this->is_cache_bust_enabled();
 		$mode    = $this->get_cache_bust_mode();
-		$wrap_class = $enabled ? 'is-on' : 'is-off';
-		$modes   = array(
-			self::MODE_LOAD => __( 'Chaque chargement', 'global-materiel' ),
-			self::MODE_HOUR => __( 'Chaque heure', 'global-materiel' ),
-		);
-		$current_label = isset( $modes[ $mode ] ) ? $modes[ $mode ] : $modes[ self::MODE_LOAD ];
-
-		$title  = '<div class="gm-cache-bust-wrap ' . esc_attr( $wrap_class ) . '">';
-		$title .= '<span class="gm-cache-bust-label">';
-		$title .= '<span class="ab-icon" aria-hidden="true"></span>';
-		$title .= '<span class="gm-cache-bust-label-text">' . esc_html__( 'Désactive le cache CSS/JS', 'global-materiel' ) . '</span>';
-		$title .= '</span>';
-		$title .= '<label class="gm-cache-bust-switch" for="gm-cache-bust-toggle">';
-		$title .= '<input type="checkbox" id="gm-cache-bust-toggle" ' . checked( $enabled, true, false ) . ' />';
-		$title .= '<span class="gm-cache-bust-slider"></span>';
-		$title .= '<span class="screen-reader-text">' . esc_html__( 'Activer le bypass cache CSS/JS', 'global-materiel' ) . '</span>';
-		$title .= '</label>';
-		$title .= '<div class="gm-cache-bust-dropdown" id="gm-cache-bust-mode" data-value="' . esc_attr( $mode ) . '">';
-		$title .= '<button type="button" class="gm-cache-bust-dropdown-toggle" aria-expanded="false" aria-haspopup="listbox">';
-		$title .= '<span class="gm-cache-bust-dropdown-label">' . esc_html( $current_label ) . '</span>';
-		$title .= '<span class="gm-cache-bust-chevron" aria-hidden="true"></span>';
-		$title .= '</button>';
-		$title .= '<div class="gm-cache-bust-dropdown-menu" role="listbox" hidden>';
-		foreach ( $modes as $value => $label ) {
-			$is_selected = ( $value === $mode );
-			$title      .= '<div class="gm-cache-bust-dropdown-option' . ( $is_selected ? ' is-selected' : '' ) . '" role="option" data-value="' . esc_attr( $value ) . '" aria-selected="' . ( $is_selected ? 'true' : 'false' ) . '">';
-			$title      .= esc_html( $label );
-			$title      .= '</div>';
-		}
-		$title .= '</div>';
-		$title .= '</div>';
-		$title .= '</div>';
+		$status  = $enabled ? __( 'Activé', 'global-materiel' ) : __( 'Désactivé', 'global-materiel' );
 
 		$wp_admin_bar->add_node(
 			array(
 				'id'    => 'gm-cache-bust',
-				'title' => $title,
+				'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="ab-label">(' . esc_html( $status ) . ')</span>',
 				'href'  => false,
 				'meta'  => array(
-					'class' => 'gm-cache-bust-menu',
+					'class' => $enabled ? 'gm-cache-bust-on' : 'gm-cache-bust-off',
+					'title' => __( 'Bypass cache CSS/JS', 'global-materiel' ),
 				),
 			)
 		);
+
+		$wp_admin_bar->add_node(
+			array(
+				'id'     => 'gm-cache-bust-toggle',
+				'parent' => 'gm-cache-bust',
+				'title'  => $enabled ? __( 'Désactiver', 'global-materiel' ) : __( 'Activer', 'global-materiel' ),
+				'href'   => $this->get_action_url( $enabled ? 'disable' : 'enable' ),
+			)
+		);
+
+		if ( ! $enabled ) {
+			return;
+		}
+
+		$wp_admin_bar->add_group(
+			array(
+				'id'     => 'gm-cache-bust-modes',
+				'parent' => 'gm-cache-bust',
+				'meta'   => array(
+					'class' => 'ab-sub-secondary',
+				),
+			)
+		);
+
+		$modes = array(
+			self::MODE_LOAD => __( 'Chaque chargement', 'global-materiel' ),
+			self::MODE_HOUR => __( 'Chaque heure', 'global-materiel' ),
+		);
+
+		foreach ( $modes as $value => $label ) {
+			$wp_admin_bar->add_node(
+				array(
+					'id'     => 'gm-cache-bust-mode-' . $value,
+					'parent' => 'gm-cache-bust-modes',
+					'title'  => $label,
+					'href'   => $this->get_action_url( 'mode', $value ),
+					'meta'   => array(
+						'class' => ( $value === $mode ) ? 'gm-cache-bust-current' : '',
+					),
+				)
+			);
+		}
+	}
+
+	public function handle_admin_bar_action() {
+		if ( empty( $_GET['gm_cache_bust'] ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		check_admin_referer( 'gm_cache_bust' );
+
+		$action = sanitize_key( wp_unslash( $_GET['gm_cache_bust'] ) );
+
+		if ( 'enable' === $action ) {
+			update_option( self::OPTION_ENABLED, '1', true );
+		} elseif ( 'disable' === $action ) {
+			update_option( self::OPTION_ENABLED, '0', true );
+		} elseif ( 'mode' === $action ) {
+			$mode = isset( $_GET['gm_mode'] ) ? sanitize_key( wp_unslash( $_GET['gm_mode'] ) ) : self::MODE_LOAD;
+			if ( in_array( $mode, array( self::MODE_LOAD, self::MODE_HOUR ), true ) ) {
+				update_option( self::OPTION_MODE, $mode, true );
+				update_option( self::OPTION_ENABLED, '1', true );
+			}
+		}
+
+		$redirect = wp_get_referer();
+		if ( ! $redirect ) {
+			$redirect = remove_query_arg( array( 'gm_cache_bust', 'gm_mode', '_wpnonce' ) );
+		} else {
+			$redirect = remove_query_arg( array( 'gm_cache_bust', 'gm_mode', '_wpnonce' ), $redirect );
+		}
+
+		wp_safe_redirect( $redirect );
+		exit;
 	}
 
 	public function enqueue_admin_bar_assets() {
@@ -121,62 +169,27 @@ class GM_Assets {
 		}
 
 		$css = GM_PLUGIN_DIR . 'assets/css/admin-bar-cache-bust.css';
-		$js  = GM_PLUGIN_DIR . 'assets/js/admin-bar-cache-bust.js';
-
-		if ( file_exists( $css ) ) {
-			wp_enqueue_style(
-				'gm-admin-bar-cache-bust',
-				GM_PLUGIN_URL . 'assets/css/admin-bar-cache-bust.css',
-				array( 'admin-bar' ),
-				(string) filemtime( $css )
-			);
+		if ( ! file_exists( $css ) ) {
+			return;
 		}
 
-		if ( file_exists( $js ) ) {
-			wp_enqueue_script(
-				'gm-admin-bar-cache-bust',
-				GM_PLUGIN_URL . 'assets/js/admin-bar-cache-bust.js',
-				array(),
-				(string) filemtime( $js ),
-				true
-			);
-
-			wp_localize_script(
-				'gm-admin-bar-cache-bust',
-				'gmCacheBust',
-				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'gm_cache_bust' ),
-					'enabled' => $this->is_cache_bust_enabled(),
-					'mode'    => $this->get_cache_bust_mode(),
-				)
-			);
-		}
+		wp_enqueue_style(
+			'gm-admin-bar-cache-bust',
+			GM_PLUGIN_URL . 'assets/css/admin-bar-cache-bust.css',
+			array( 'admin-bar' ),
+			(string) filemtime( $css )
+		);
 	}
 
-	public function ajax_save_cache_bust() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => 'forbidden' ), 403 );
-		}
-
-		check_ajax_referer( 'gm_cache_bust', 'nonce' );
-
-		$enabled = isset( $_POST['enabled'] ) && '1' === (string) wp_unslash( $_POST['enabled'] );
-		$mode    = isset( $_POST['mode'] ) ? sanitize_key( wp_unslash( $_POST['mode'] ) ) : self::MODE_LOAD;
-
-		if ( ! in_array( $mode, array( self::MODE_LOAD, self::MODE_HOUR ), true ) ) {
-			$mode = self::MODE_LOAD;
-		}
-
-		update_option( self::OPTION_ENABLED, $enabled ? '1' : '0', true );
-		update_option( self::OPTION_MODE, $mode, true );
-
-		wp_send_json_success(
-			array(
-				'enabled' => $enabled,
-				'mode'    => $mode,
-			)
+	private function get_action_url( $action, $mode = '' ) {
+		$args = array(
+			'gm_cache_bust' => $action,
 		);
+		if ( '' !== $mode ) {
+			$args['gm_mode'] = $mode;
+		}
+
+		return wp_nonce_url( add_query_arg( $args ), 'gm_cache_bust' );
 	}
 
 	public function gm_enqueue_custom_scripts() {
