@@ -32,6 +32,11 @@ if ( ! wp_doing_ajax() ) {
 		<?php do_action( 'woocommerce_review_order_after_submit' ); ?>
 
 		<?php wp_nonce_field( 'woocommerce-process_checkout', 'woocommerce-process-checkout-nonce' ); ?>
+		<ul class="wc_payment_methods payment_methods methods" style="display:none;">
+			<li class="wc_payment_method payment_method_gm_quote">
+				<input id="payment_method_gm_quote" type="radio" class="input-radio" name="payment_method" value="gm_quote" checked="checked">
+			</li>
+		</ul>
 		<input type="hidden" name="_wp_http_referer" value="<?php echo esc_url( wc_get_checkout_url() ); ?>">
 	</div>
 </div>

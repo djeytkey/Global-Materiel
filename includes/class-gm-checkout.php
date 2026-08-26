@@ -14,6 +14,12 @@ class GM_Checkout {
 		add_action( 'wp_footer', array( $this, 'force_billing_fields_order_js' ) );
 		add_filter( 'woocommerce_order_button_text', array( $this, 'order_button_text' ) );
 		add_filter( 'woocommerce_update_order_review_fragments', array( $this, 'force_payment_fragment' ), 99999 );
+		add_filter( 'woocommerce_payment_gateways', array( $this, 'register_quote_gateway' ) );
+		add_filter( 'woocommerce_available_payment_gateways', array( $this, 'only_quote_gateway' ), 99999 );
+		add_filter( 'woocommerce_cart_needs_payment', array( $this, 'cart_always_needs_quote_gateway' ) );
+		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'force_quote_payment_method' ) );
+		add_filter( 'woocommerce_order_needs_payment', array( $this, 'quote_order_needs_payment' ), 10, 2 );
+		add_action( 'woocommerce_checkout_init', array( $this, 'set_chosen_quote_gateway' ) );
 	}
 
 	// SCRIPT JS POUR LES BOUTONS +/- DANS LE CHECKOUT
@@ -295,6 +301,45 @@ class GM_Checkout {
 
 	public function order_button_text( $text ) {
 		return 'Demander Un Devis';
+	}
+
+	public function register_quote_gateway( $gateways ) {
+		$gateways[] = 'GM_Gateway_Quote';
+		return $gateways;
+	}
+
+	public function only_quote_gateway( $gateways ) {
+		if ( is_admin() && ! wp_doing_ajax() ) {
+			return $gateways;
+		}
+
+		if ( isset( $gateways[ GM_Gateway_Quote::ID ] ) ) {
+			return array( GM_Gateway_Quote::ID => $gateways[ GM_Gateway_Quote::ID ] );
+		}
+
+		return $gateways;
+	}
+
+	public function cart_always_needs_quote_gateway() {
+		return true;
+	}
+
+	public function force_quote_payment_method( $data ) {
+		$data['payment_method'] = GM_Gateway_Quote::ID;
+		return $data;
+	}
+
+	public function quote_order_needs_payment( $needs_payment, $order ) {
+		if ( $order && GM_Gateway_Quote::ID === $order->get_payment_method() ) {
+			return false;
+		}
+		return $needs_payment;
+	}
+
+	public function set_chosen_quote_gateway() {
+		if ( WC()->session ) {
+			WC()->session->set( 'chosen_payment_method', GM_Gateway_Quote::ID );
+		}
 	}
 
 	public function force_payment_fragment( $fragments ) {

@@ -24,6 +24,7 @@ class GM_Plugin {
 
 	private function load_modules() {
 		require_once GM_PLUGIN_DIR . 'includes/class-gm-templates.php';
+		require_once GM_PLUGIN_DIR . 'includes/class-gm-gateway-quote.php';
 		require_once GM_PLUGIN_DIR . 'includes/class-gm-checkout.php';
 		require_once GM_PLUGIN_DIR . 'includes/class-gm-cart.php';
 		require_once GM_PLUGIN_DIR . 'includes/class-gm-wishlist.php';
