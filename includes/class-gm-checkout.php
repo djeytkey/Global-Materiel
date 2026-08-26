@@ -12,7 +12,8 @@ class GM_Checkout {
 		add_filter( 'woocommerce_form_field', array( $this, 'clean_thwcfd_classes' ), 99999, 4 );
 		add_filter( 'woocommerce_states', array( $this, 'remove_states_completely' ), 99999 );
 		add_action( 'wp_footer', array( $this, 'force_billing_fields_order_js' ) );
-		add_filter( 'woocommerce_order_button_text', array( $this, 'order_button_text' ) );
+		add_filter( 'woocommerce_order_button_text', array( $this, 'order_button_text' ), 99999 );
+		add_filter( 'woocommerce_order_button_html', array( $this, 'order_button_html' ), 99999 );
 		add_filter( 'woocommerce_update_order_review_fragments', array( $this, 'force_payment_fragment' ), 99999 );
 		add_filter( 'woocommerce_payment_gateways', array( $this, 'register_quote_gateway' ) );
 		add_filter( 'woocommerce_available_payment_gateways', array( $this, 'only_quote_gateway' ), 99999 );
@@ -165,6 +166,22 @@ class GM_Checkout {
 	            });
 	        });
 	
+	        function forceDevisButton() {
+	            var $btn = $('#place_order');
+	            if (!$btn.length) return;
+	            $btn.text('Demander Un Devis')
+	                .val('Demander Un Devis')
+	                .attr('data-value', 'Demander Un Devis')
+	                .data('value', 'Demander Un Devis');
+	        }
+
+	        forceDevisButton();
+	        $(document.body).on('updated_checkout init_checkout payment_method_selected', function() {
+	            forceDevisButton();
+	            setTimeout(forceDevisButton, 50);
+	            setTimeout(forceDevisButton, 400);
+	        });
+
 	        $(document.body).on('updated_checkout', function() {
 	            injectCheckoutUpdateButton();
 	            checkCheckoutQuantitiesAndToggleButton();
@@ -303,6 +320,10 @@ class GM_Checkout {
 		return 'Demander Un Devis';
 	}
 
+	public function order_button_html( $html ) {
+		return '<button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="Demander Un Devis" data-value="Demander Un Devis">Demander Un Devis</button>';
+	}
+
 	public function register_quote_gateway( $gateways ) {
 		$gateways[] = 'GM_Gateway_Quote';
 		return $gateways;
@@ -321,7 +342,7 @@ class GM_Checkout {
 	}
 
 	public function cart_always_needs_quote_gateway() {
-		return true;
+		return false;
 	}
 
 	public function force_quote_payment_method( $data ) {
@@ -329,11 +350,8 @@ class GM_Checkout {
 		return $data;
 	}
 
-	public function quote_order_needs_payment( $needs_payment, $order ) {
-		if ( $order && GM_Gateway_Quote::ID === $order->get_payment_method() ) {
-			return false;
-		}
-		return $needs_payment;
+	public function quote_order_needs_payment() {
+		return false;
 	}
 
 	public function set_chosen_quote_gateway() {

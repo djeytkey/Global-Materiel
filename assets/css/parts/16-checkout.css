@@ -266,12 +266,18 @@
     color: #fff !important;
     border: none;
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 16px !important;
     font-weight: 700;
     text-transform: uppercase;
     cursor: pointer;
     transition: background 0.3s ease;
     margin-top: 20px;
+}
+
+#place_order::before,
+#place_order::after {
+    content: none !important;
+    display: none !important;
 }
 
 #place_order:hover {

@@ -27,7 +27,7 @@ if ( ! wp_doing_ajax() ) {
 
 		<?php do_action( 'woocommerce_review_order_before_submit' ); ?>
 
-		<button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="Commander" data-value="Commander">Demander Un Devis</button>
+		<button type="submit" class="button alt" name="woocommerce_checkout_place_order" id="place_order" value="Demander Un Devis" data-value="Demander Un Devis">Demander Un Devis</button>
 
 		<?php do_action( 'woocommerce_review_order_after_submit' ); ?>
 
