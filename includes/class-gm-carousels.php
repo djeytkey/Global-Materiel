@@ -176,9 +176,30 @@ class GM_Carousels {
 	        var gmSlickTries = 0;
 	        var gmSlickTimer;
 
+	        function gmPrepareCategoryCarouselContainer($el) {
+	            var $widget = $el.closest('.elementor-widget-shortcode');
+	            if ($widget.length) {
+	                $widget.css({
+	                    width: '100%',
+	                    maxWidth: '100%',
+	                    flexBasis: '100%',
+	                    alignSelf: 'stretch'
+	                });
+	            }
+	        }
+
 	        function gmGetCategoryCarouselWidth($el) {
 	            var $wrapper = $el.closest('.product-categories-carousel-wrapper');
-	            var width = $wrapper.length ? $wrapper[0].getBoundingClientRect().width : 0;
+	            var $widget = $el.closest('.elementor-widget-shortcode');
+	            var $layout = $el.closest('.e-con, .elementor-container');
+	            var width = $widget.length ? $widget[0].getBoundingClientRect().width : 0;
+	            if (!width && $wrapper.length) {
+	                width = $wrapper[0].getBoundingClientRect().width;
+	            }
+	            var layoutWidth = $layout.length ? $layout[0].getBoundingClientRect().width : 0;
+	            if (width > 0 && width < 320 && layoutWidth > width) {
+	                width = layoutWidth;
+	            }
 	            var viewport = window.innerWidth || document.documentElement.clientWidth || 0;
 
 	            if (!isFinite(width) || width <= 0 || (viewport > 0 && width > viewport * 1.5)) {
@@ -209,6 +230,7 @@ class GM_Carousels {
 	                    gmRevealCategoryCarousel($el);
 	                    return;
 	                }
+	                gmPrepareCategoryCarouselContainer($el);
 	                var width = gmGetCategoryCarouselWidth($el);
 	                $el.css({
 	                    display: 'block',
@@ -263,6 +285,7 @@ class GM_Carousels {
 	        $(window).on('resize', function () {
 	            $('.product-categories-carousel.slick-initialized').each(function () {
 	                var $el = $(this);
+	                gmPrepareCategoryCarouselContainer($el);
 	                var width = gmGetCategoryCarouselWidth($el);
 	                if (width > 0) {
 	                    $el.css('width', width + 'px').slick('setPosition');
