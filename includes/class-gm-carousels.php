@@ -19,6 +19,7 @@ class GM_Carousels {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_swiper_for_category_carousel' ));
 		add_shortcode( 'category_carousel', array( $this, 'render_category_carousel_shortcode' ));
 		add_action( 'wp_head', array( $this, 'print_swiper_loop_image_fix_script' ), 1 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_slick_for_custom_category_carousel' ) );
 	}
 
 	/**
@@ -84,40 +85,64 @@ class GM_Carousels {
 	// SHORTCODE SLIDER PAGE D'ACCUEIL
 	// SHORTCODE CARROUSEL DES CATÉGORIES ASSOCIÉES
 
+	public function enqueue_slick_for_custom_category_carousel() {
+		if ( is_admin() || ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
+		$shop_id = (int) wc_get_page_id( 'shop' );
+		$on_shop = ( function_exists( 'is_shop' ) && is_shop() )
+			|| ( $shop_id && ( is_page( $shop_id ) || get_queried_object_id() === $shop_id ) );
+
+		if ( ! $on_shop && ! ( function_exists( 'is_product_category' ) && is_product_category() ) ) {
+			return;
+		}
+
+		wp_enqueue_style( 'slick-css', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css', array(), '1.8.1' );
+		wp_enqueue_style( 'slick-theme-css', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css', array(), '1.8.1' );
+		wp_enqueue_script( 'slick-js', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js', array( 'jquery' ), '1.8.1', true );
+	}
+
+	private function get_custom_category_carousel_parent_id() {
+		if ( function_exists( 'is_product_category' ) && is_product_category() ) {
+			$current = get_queried_object();
+			if ( $current && ! empty( $current->term_id ) ) {
+				return (int) $current->term_id;
+			}
+		}
+
+		return 0;
+	}
+
 	public function render_custom_category_carousel($atts) {
-	    wp_enqueue_style('slick-css', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css', array(), '1.8.1');
-	    wp_enqueue_style('slick-theme-css', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css', array(), '1.8.1');
-	    wp_enqueue_script('slick-js', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js', array('jquery'), '1.8.1', true);
-	
-	    if (!(is_shop() || is_product_category())) {
-	        return '';
-	    }
-	
-	    if (is_product_category()) {
-	        $current = get_queried_object();
-	        $parent_id = $current->term_id;
-	    } else {
-	        $parent_id = 0;
-	    }
-	
+	    $this->enqueue_slick_for_custom_category_carousel();
+
+	    $parent_id = $this->get_custom_category_carousel_parent_id();
+
 	    $terms = get_terms(array(
 	        'taxonomy'   => 'product_cat',
-	        'hide_empty' => true,
+	        'hide_empty' => false,
 	        'parent'     => $parent_id,
+	        'orderby'    => 'menu_order',
+	        'order'      => 'ASC',
 	    ));
-	
-	    if ((is_wp_error($terms) || empty($terms)) && is_product_category()) {
+
+	    if ((is_wp_error($terms) || empty($terms)) && $parent_id > 0) {
+	        $current = get_queried_object();
+	        $fallback_parent = ( $current && ! empty( $current->parent ) ) ? (int) $current->parent : 0;
 	        $terms = get_terms(array(
 	            'taxonomy'   => 'product_cat',
-	            'hide_empty' => true,
-	            'parent'     => $current->parent,
+	            'hide_empty' => false,
+	            'parent'     => $fallback_parent,
+	            'orderby'    => 'menu_order',
+	            'order'      => 'ASC',
 	        ));
 	    }
-	
+
 	    if (is_wp_error($terms) || empty($terms)) {
 	        return '';
 	    }
-	
+
 	    $exclues = array('all', 'uncategorized', 'non-classe');
 	
 	    ob_start();
@@ -146,26 +171,49 @@ class GM_Carousels {
 	    </div>
 	
 	    <script>
-	    jQuery(document).ready(function ($) {
-	        var $carousel = $('.product-categories-carousel');
-	        
-	        if ($carousel.length && !$carousel.hasClass('slick-initialized')) {
-	            $carousel.slick({
-	                slidesToShow: 5,
-	                slidesToScroll: 1,
-	                rows: 1,
-	                slidesPerRow: 1,
-	                arrows: true,
-	                dots: false,
-	                infinite: $carousel.children().length > 5,
-	                responsive: [
-	                    { breakpoint: 1200, settings: { slidesToShow: 4 } },
-	                    { breakpoint: 992,  settings: { slidesToShow: 3 } },
-	                    { breakpoint: 600,  settings: { slidesToShow: 2 } },
-	                    { breakpoint: 480,  settings: { slidesToShow: 1 } }
-	                ]
+	    jQuery(function ($) {
+	        function gmInitCategoryCarousel() {
+	            var $carousel = $('.product-categories-carousel');
+	            if (!$carousel.length || typeof $.fn.slick !== 'function') {
+	                return false;
+	            }
+	            $carousel.each(function () {
+	                var $el = $(this);
+	                if ($el.hasClass('slick-initialized')) {
+	                    return;
+	                }
+	                $el.slick({
+	                    slidesToShow: 5,
+	                    slidesToScroll: 1,
+	                    rows: 1,
+	                    slidesPerRow: 1,
+	                    arrows: true,
+	                    dots: false,
+	                    infinite: $el.children().length > 5,
+	                    responsive: [
+	                        { breakpoint: 1200, settings: { slidesToShow: 4 } },
+	                        { breakpoint: 992,  settings: { slidesToShow: 3 } },
+	                        { breakpoint: 600,  settings: { slidesToShow: 2 } },
+	                        { breakpoint: 480,  settings: { slidesToShow: 1 } }
+	                    ]
+	                });
 	            });
+	            return true;
 	        }
+
+	        if (gmInitCategoryCarousel()) {
+	            return;
+	        }
+
+	        $(window).on('load', gmInitCategoryCarousel);
+
+	        var tries = 0;
+	        var timer = setInterval(function () {
+	            tries++;
+	            if (gmInitCategoryCarousel() || tries > 40) {
+	                clearInterval(timer);
+	            }
+	        }, 250);
 	    });
 	    </script>
 	    <?php

@@ -32,6 +32,9 @@ class GM_Cache {
 		$excludes[] = 'firstImageLoaded';
 		$excludes[] = 'firstImageGridLoaded';
 		$excludes[] = 'gmFixSwiperLoopImages';
+		$excludes[] = 'gmInitCategoryCarousel';
+		$excludes[] = 'slick.min.js';
+		$excludes[] = 'product-categories-carousel';
 		return $excludes;
 	}
 
