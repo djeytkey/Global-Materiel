@@ -1797,6 +1797,14 @@ a.discovercat-btn {
     max-width: 100%;
     min-width: 0;
     box-sizing: border-box;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.product-categories-carousel.slick-initialized {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.15s ease;
 }
 
 .product-categories-carousel-wrapper {

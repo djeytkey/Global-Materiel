@@ -148,7 +148,7 @@ class GM_Carousels {
 	    ob_start();
 	    ?>
 	    <div class="product-categories-carousel-wrapper">
-	        <div class="product-categories-carousel">
+	        <div class="product-categories-carousel" style="visibility:hidden;opacity:0;">
 	            <?php foreach ($terms as $term) : 
 	                if (in_array($term->slug, $exclues, true)) {
 	                    continue;
@@ -173,6 +173,28 @@ class GM_Carousels {
 	    <script>
 	    jQuery(function ($) {
 	        var gmSlickReady = false;
+	        var gmSlickTries = 0;
+	        var gmSlickTimer;
+
+	        function gmGetCategoryCarouselWidth($el) {
+	            var $wrapper = $el.closest('.product-categories-carousel-wrapper');
+	            var width = $wrapper.length ? $wrapper[0].getBoundingClientRect().width : 0;
+	            var viewport = window.innerWidth || document.documentElement.clientWidth || 0;
+
+	            if (!isFinite(width) || width <= 0 || (viewport > 0 && width > viewport * 1.5)) {
+	                width = viewport;
+	            }
+
+	            return Math.max(0, Math.floor(width));
+	        }
+
+	        function gmRevealCategoryCarousel($el) {
+	            $el.css({
+	                visibility: 'visible',
+	                opacity: 1
+	            });
+	        }
+
 	        function gmInitCategoryCarousel() {
 	            if (gmSlickReady || typeof $.fn.slick !== 'function') {
 	                return gmSlickReady;
@@ -184,8 +206,23 @@ class GM_Carousels {
 	            $carousel.each(function () {
 	                var $el = $(this);
 	                if ($el.hasClass('slick-initialized')) {
+	                    gmRevealCategoryCarousel($el);
 	                    return;
 	                }
+	                var width = gmGetCategoryCarouselWidth($el);
+	                $el.css({
+	                    display: 'block',
+	                    width: width > 0 ? width + 'px' : '100%',
+	                    maxWidth: '100%',
+	                    minWidth: 0,
+	                    boxSizing: 'border-box',
+	                    visibility: 'hidden',
+	                    opacity: 0
+	                });
+	                $el.children().css({
+	                    minWidth: 0,
+	                    boxSizing: 'border-box'
+	                });
 	                $el.slick({
 	                    slidesToShow: 5,
 	                    slidesToScroll: 1,
@@ -201,8 +238,20 @@ class GM_Carousels {
 	                        { breakpoint: 480,  settings: { slidesToShow: 1 } }
 	                    ]
 	                });
+	                var refresh = function () {
+	                    var refreshedWidth = gmGetCategoryCarouselWidth($el);
+	                    if (refreshedWidth > 0) {
+	                        $el.css('width', refreshedWidth + 'px');
+	                    }
+	                    if ($el.hasClass('slick-initialized')) {
+	                        $el.slick('setPosition');
+	                        gmRevealCategoryCarousel($el);
+	                    }
+	                };
+	                requestAnimationFrame(refresh);
+	                setTimeout(refresh, 300);
 	            });
-	            gmSlickReady = $carousel.hasClass('slick-initialized') || $carousel.find('.slick-track').length > 0;
+	            gmSlickReady = $carousel.filter('.slick-initialized').length === $carousel.length;
 	            return gmSlickReady;
 	        }
 
@@ -210,7 +259,24 @@ class GM_Carousels {
 	            setTimeout(gmInitCategoryCarousel, 0);
 	            setTimeout(gmInitCategoryCarousel, 800);
 	        });
+
+	        $(window).on('resize', function () {
+	            $('.product-categories-carousel.slick-initialized').each(function () {
+	                var $el = $(this);
+	                var width = gmGetCategoryCarouselWidth($el);
+	                if (width > 0) {
+	                    $el.css('width', width + 'px').slick('setPosition');
+	                }
+	            });
+	        });
+
 	        gmInitCategoryCarousel();
+	        gmSlickTimer = setInterval(function () {
+	            gmSlickTries++;
+	            if (gmInitCategoryCarousel() || gmSlickTries >= 40) {
+	                clearInterval(gmSlickTimer);
+	            }
+	        }, 250);
 	    });
 	    </script>
 	    <?php
