@@ -20,11 +20,44 @@ class GM_Assets {
 	public function __construct() {
 		add_action( 'init', array( $this, 'handle_admin_bar_action' ), 1 );
 		add_action( 'init', array( $this, 'force_asset_version_bust' ) );
+		add_action( 'wp_head', array( $this, 'define_thegem_gallery_onload_stubs' ), 0 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'gm_enqueue_custom_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'gm_enqueue_custom_styles' ) );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_item' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_admin_bar_assets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_bar_assets' ) );
+	}
+
+	/**
+	 * TheGem appelle firstImageLoaded() via onload sur l'image produit.
+	 * LiteSpeed + Smush lazyload exécutent cet onload avant le script TheGem.
+	 */
+	public function define_thegem_gallery_onload_stubs() {
+		if ( is_admin() ) {
+			return;
+		}
+		?>
+		<script>
+		window.firstImageLoaded = window.firstImageLoaded || function () {
+			var gallery = document.querySelector('.thegem-te-product-gallery > .product-gallery');
+			if ( ! gallery ) {
+				return;
+			}
+			var prev = gallery.previousElementSibling;
+			if ( prev && prev.classList.contains('preloader') ) {
+				prev.remove();
+			}
+		};
+		window.firstImageGridLoaded = window.firstImageGridLoaded || function () {
+			document.querySelectorAll('.product-gallery-grid-item img, .product-gallery-grid-item video').forEach(function (el) {
+				var prev = el.previousElementSibling;
+				if ( prev && prev.classList.contains('preloader') ) {
+					prev.remove();
+				}
+			});
+		};
+		</script>
+		<?php
 	}
 
 	public function is_cache_bust_enabled() {
