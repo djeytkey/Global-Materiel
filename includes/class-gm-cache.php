@@ -31,6 +31,7 @@ class GM_Cache {
 		}
 		$excludes[] = 'firstImageLoaded';
 		$excludes[] = 'firstImageGridLoaded';
+		$excludes[] = 'gmFixSwiperLoopImages';
 		return $excludes;
 	}
 

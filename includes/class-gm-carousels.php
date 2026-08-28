@@ -18,6 +18,7 @@ class GM_Carousels {
 		add_shortcode( 'homepage_slider', array( $this, 'render_homepage_slider_shortcode' ));
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_swiper_for_category_carousel' ));
 		add_shortcode( 'category_carousel', array( $this, 'render_category_carousel_shortcode' ));
+		add_action( 'wp_head', array( $this, 'print_swiper_loop_image_fix_script' ), 1 );
 	}
 
 	/**
@@ -27,6 +28,74 @@ class GM_Carousels {
 	private function carousel_img_attrs( $extra_class = '' ) {
 		$classes = trim( 'skip-lazy ' . $extra_class );
 		return 'class="' . esc_attr( $classes ) . '" loading="eager" decoding="async" data-no-lazy="1" data-skip-lazy="1" data-spai-excluded="true"';
+	}
+
+	/**
+	 * Au rebouclage Swiper affiche des slides clonés : recopier les src des originaux.
+	 */
+	public function print_swiper_loop_image_fix_script() {
+		if ( is_admin() ) {
+			return;
+		}
+		?>
+		<script>
+		window.gmFixSwiperLoopImages = function (swiper) {
+			if (!swiper || !swiper.el) {
+				return;
+			}
+			var root = swiper.el;
+			function realSrc(img) {
+				return img.getAttribute('data-src')
+					|| img.getAttribute('data-lazy-src')
+					|| img.getAttribute('data-original')
+					|| img.getAttribute('data-spai-src')
+					|| img.currentSrc
+					|| img.src
+					|| '';
+			}
+			function applySrc(img, src) {
+				if (!src || src.indexOf('data:image') === 0) {
+					return;
+				}
+				if (img.getAttribute('src') !== src) {
+					img.setAttribute('src', src);
+				}
+				img.loading = 'eager';
+				img.classList.remove('lazyload', 'lazyloading');
+				img.classList.add('lazyloaded', 'skip-lazy');
+			}
+			root.querySelectorAll('.swiper-slide:not(.swiper-slide-duplicate) img').forEach(function (img) {
+				applySrc(img, realSrc(img));
+			});
+			root.querySelectorAll('.swiper-slide-duplicate').forEach(function (dup) {
+				var index = dup.getAttribute('data-swiper-slide-index');
+				if (index === null) {
+					return;
+				}
+				var original = root.querySelector('.swiper-slide:not(.swiper-slide-duplicate)[data-swiper-slide-index="' + index + '"]');
+				if (!original) {
+					return;
+				}
+				var origImgs = original.querySelectorAll('img');
+				dup.querySelectorAll('img').forEach(function (img, i) {
+					if (!origImgs[i]) {
+						return;
+					}
+					applySrc(img, realSrc(origImgs[i]));
+				});
+			});
+		};
+		</script>
+		<?php
+	}
+
+	private function swiper_loop_image_fix_options() {
+		return "loopAdditionalSlides: 5,
+	                on: {
+	                    init: function() { if (window.gmFixSwiperLoopImages) window.gmFixSwiperLoopImages(this); },
+	                    afterInit: function() { if (window.gmFixSwiperLoopImages) window.gmFixSwiperLoopImages(this); },
+	                    loopFix: function() { if (window.gmFixSwiperLoopImages) window.gmFixSwiperLoopImages(this); }
+	                }";
 	}
 
 	// SHORTCODE CARROUSEL DES CATÉGORIES (SLICK)
@@ -396,7 +465,8 @@ class GM_Carousels {
 	                breakpoints: {
 	                    768: { slidesPerView: 2, spaceBetween: 20 },
 	                    992: { slidesPerView: 5, spaceBetween: 25 }
-	                }
+	                },
+	                <?php echo $this->swiper_loop_image_fix_options(); ?>
 	            });
 	        }
 	    });
@@ -547,7 +617,8 @@ class GM_Carousels {
 	                breakpoints: {
 	                    768: { slidesPerView: 2, spaceBetween: 20 },
 	                    992: { slidesPerView: 5, spaceBetween: 25 }
-	                }
+	                },
+	                <?php echo $this->swiper_loop_image_fix_options(); ?>
 	            });
 	        }
 	    });
@@ -710,7 +781,8 @@ class GM_Carousels {
 	                breakpoints: {
 	                    768: { slidesPerView: 2, spaceBetween: 20 },
 	                    992: { slidesPerView: 5, spaceBetween: 25 }
-	                }
+	                },
+	                <?php echo $this->swiper_loop_image_fix_options(); ?>
 	            });
 	        }
 	    });
