@@ -93,6 +93,8 @@ class GM_Security {
 		    $transient_name = 'login_attempts_' . md5($ip);
 		    delete_transient($transient_name);
 		});
+		add_filter( 'site_transient_update_plugins', array( $this, 'hide_ai1wm_plugin_updates' ), 999 );
+		add_filter( 'auto_update_plugin', array( $this, 'disable_ai1wm_auto_updates' ), 10, 2 );
 	}
 
 	// SÉCURITÉ : FORCER HTTPS ET CROSSORIGIN SUR SCRIPTS EXTERNES
@@ -101,6 +103,73 @@ class GM_Security {
 	// SÉCURITÉ - MASQUER VERSION WORDPRESS
 	// SÉCURITÉ - DÉSACTIVER XML-RPC
 	// SÉCURITÉ - LIMITER TENTATIVES CONNEXION
+	// MASQUER LES MISES À JOUR ALL-IN-ONE WP MIGRATION (GARDER LES VERSIONS ACTUELLES)
+
+	/**
+	 * Plugins All-in-One WP Migration à figer sur la version installée.
+	 *
+	 * @return string[]
+	 */
+	private function locked_ai1wm_plugin_files() {
+		return array(
+			'all-in-one-wp-migration/all-in-one-wp-migration.php',
+			'all-in-one-wp-migration-gdrive-extension/all-in-one-wp-migration-gdrive-extension.php',
+		);
+	}
+
+	private function is_locked_ai1wm_plugin( $plugin_file ) {
+		$plugin_file = str_replace( '\\', '/', (string) $plugin_file );
+		if ( in_array( $plugin_file, $this->locked_ai1wm_plugin_files(), true ) ) {
+			return true;
+		}
+
+		$dir = dirname( $plugin_file );
+		return in_array(
+			$dir,
+			array(
+				'all-in-one-wp-migration',
+				'all-in-one-wp-migration-gdrive-extension',
+			),
+			true
+		);
+	}
+
+	public function hide_ai1wm_plugin_updates( $transient ) {
+		if ( ! is_object( $transient ) ) {
+			return $transient;
+		}
+
+		foreach ( $this->locked_ai1wm_plugin_files() as $plugin_file ) {
+			if ( isset( $transient->response[ $plugin_file ] ) ) {
+				unset( $transient->response[ $plugin_file ] );
+			}
+		}
+
+		if ( ! empty( $transient->response ) && is_array( $transient->response ) ) {
+			foreach ( array_keys( $transient->response ) as $plugin_file ) {
+				if ( $this->is_locked_ai1wm_plugin( $plugin_file ) ) {
+					unset( $transient->response[ $plugin_file ] );
+				}
+			}
+		}
+
+		return $transient;
+	}
+
+	public function disable_ai1wm_auto_updates( $update, $item ) {
+		$plugin_file = '';
+		if ( is_object( $item ) && ! empty( $item->plugin ) ) {
+			$plugin_file = $item->plugin;
+		} elseif ( is_string( $item ) ) {
+			$plugin_file = $item;
+		}
+
+		if ( $plugin_file && $this->is_locked_ai1wm_plugin( $plugin_file ) ) {
+			return false;
+		}
+
+		return $update;
+	}
 
 	public function remove_version_scripts_styles($src) {
 	    if (strpos($src, 'ver=')) {
