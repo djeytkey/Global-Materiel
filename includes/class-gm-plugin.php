@@ -37,6 +37,7 @@ class GM_Plugin {
 		require_once GM_PLUGIN_DIR . 'includes/class-gm-catalog.php';
 		require_once GM_PLUGIN_DIR . 'includes/class-gm-security.php';
 		require_once GM_PLUGIN_DIR . 'includes/class-gm-assets.php';
+		require_once GM_PLUGIN_DIR . 'includes/class-gm-whatsapp.php';
 
 		new GM_Templates();
 		new GM_Checkout();
@@ -51,5 +52,6 @@ class GM_Plugin {
 		new GM_Catalog();
 		new GM_Security();
 		new GM_Assets();
+		new GM_WhatsApp();
 	}
 }
