@@ -22,16 +22,20 @@ class GM_Carousels {
 	}
 
 	/**
-	 * Attributs anti-lazy pour les images de carousels.
-	 * Native lazy + ShortPixel + LiteSpeed cassent les slides hors viewport.
+	 * URL réelle conservée pour le rebouclage. Pas d’exclusion lazy globale :
+	 * LiteSpeed / ShortPixel restent actifs hors slides visibles.
 	 */
-	private function carousel_img_attrs( $extra_class = '' ) {
-		$classes = trim( 'skip-lazy ' . $extra_class );
-		return 'class="' . esc_attr( $classes ) . '" loading="eager" decoding="async" data-no-lazy="1" data-skip-lazy="1" data-spai-excluded="true"';
+	private function carousel_img_attrs( $src, $extra_class = '' ) {
+		$classes = trim( $extra_class );
+		$attrs   = '';
+		if ( $classes ) {
+			$attrs .= 'class="' . esc_attr( $classes ) . '" ';
+		}
+		return $attrs . 'decoding="async" data-gm-src="' . esc_url( $src ) . '"';
 	}
 
 	/**
-	 * Au rebouclage Swiper affiche des slides clonés : recopier les src des originaux.
+	 * Restaure le src uniquement sur les slides visibles (rebouclage), sans précharger tout le carousel.
 	 */
 	public function print_swiper_loop_image_fix_script() {
 		if ( is_admin() ) {
@@ -43,58 +47,32 @@ class GM_Carousels {
 			if (!swiper || !swiper.el) {
 				return;
 			}
-			var root = swiper.el;
-			function realSrc(img) {
-				return img.getAttribute('data-src')
-					|| img.getAttribute('data-lazy-src')
-					|| img.getAttribute('data-original')
-					|| img.getAttribute('data-spai-src')
-					|| img.currentSrc
-					|| img.src
-					|| '';
-			}
-			function applySrc(img, src) {
+			function restore(img) {
+				var src = img.getAttribute('data-gm-src');
 				if (!src || src.indexOf('data:image') === 0) {
 					return;
 				}
 				if (img.getAttribute('src') !== src) {
 					img.setAttribute('src', src);
 				}
-				img.loading = 'eager';
-				img.classList.remove('lazyload', 'lazyloading');
-				img.classList.add('lazyloaded', 'skip-lazy');
 			}
-			root.querySelectorAll('.swiper-slide:not(.swiper-slide-duplicate) img').forEach(function (img) {
-				applySrc(img, realSrc(img));
-			});
-			root.querySelectorAll('.swiper-slide-duplicate').forEach(function (dup) {
-				var index = dup.getAttribute('data-swiper-slide-index');
-				if (index === null) {
-					return;
-				}
-				var original = root.querySelector('.swiper-slide:not(.swiper-slide-duplicate)[data-swiper-slide-index="' + index + '"]');
-				if (!original) {
-					return;
-				}
-				var origImgs = original.querySelectorAll('img');
-				dup.querySelectorAll('img').forEach(function (img, i) {
-					if (!origImgs[i]) {
-						return;
-					}
-					applySrc(img, realSrc(origImgs[i]));
-				});
-			});
+			function run() {
+				swiper.el.querySelectorAll('.swiper-slide-visible img, .swiper-slide-active img, .swiper-slide-next img, .swiper-slide-duplicate-active img, .swiper-slide-duplicate-next img').forEach(restore);
+			}
+			run();
+			requestAnimationFrame(run);
 		};
 		</script>
 		<?php
 	}
 
 	private function swiper_loop_image_fix_options() {
-		return "loopAdditionalSlides: 5,
+		return "watchSlidesProgress: true,
 	                on: {
 	                    init: function() { if (window.gmFixSwiperLoopImages) window.gmFixSwiperLoopImages(this); },
 	                    afterInit: function() { if (window.gmFixSwiperLoopImages) window.gmFixSwiperLoopImages(this); },
-	                    loopFix: function() { if (window.gmFixSwiperLoopImages) window.gmFixSwiperLoopImages(this); }
+	                    loopFix: function() { if (window.gmFixSwiperLoopImages) window.gmFixSwiperLoopImages(this); },
+	                    slideChangeTransitionStart: function() { if (window.gmFixSwiperLoopImages) window.gmFixSwiperLoopImages(this); }
 	                }";
 	}
 
@@ -159,7 +137,7 @@ class GM_Carousels {
 	            ?>
 	                <a href="<?php echo esc_url($link); ?>" class="category-item<?php echo esc_attr($is_current); ?>">
 	                    <div class="category-item-image">
-	                        <img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($term->name); ?>" <?php echo $this->carousel_img_attrs(); ?>>
+	                        <img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($term->name); ?>" <?php echo $this->carousel_img_attrs( $img_url ); ?>>
 	                    </div>
 	                    <span><?php echo esc_html($term->name); ?></span>
 	                </a>
@@ -402,8 +380,8 @@ class GM_Carousels {
 	                                            <div class="item-img products-thumb">
 	                                                <a href="<?php echo esc_url($rel_product_url); ?>" title="<?php echo esc_attr($rel_product_name); ?>">
 	                                                    <div class="product-thumb-hover">
-	                                                        <img src="<?php echo esc_url($main_image_url); ?>" <?php echo $this->carousel_img_attrs( 'wp-post-image main-img' ); ?> alt="<?php echo esc_attr($main_image_alt); ?>">
-	                                                        <img src="<?php echo esc_url($hover_image_url); ?>" <?php echo $this->carousel_img_attrs( 'hover-image1 back' ); ?> alt="<?php echo esc_attr($rel_product_name); ?>">
+	                                                        <img src="<?php echo esc_url($main_image_url); ?>" <?php echo $this->carousel_img_attrs( $main_image_url, 'wp-post-image main-img' ); ?> alt="<?php echo esc_attr($main_image_alt); ?>">
+	                                                        <img src="<?php echo esc_url($hover_image_url); ?>" <?php echo $this->carousel_img_attrs( $hover_image_url, 'hover-image1 back' ); ?> alt="<?php echo esc_attr($rel_product_name); ?>">
 	                                                    </div>
 	                                                </a>
 	                                            </div>
@@ -555,8 +533,8 @@ class GM_Carousels {
 	                                            <div class="item-img products-thumb">
 	                                                <a href="<?php echo esc_url($product_url); ?>" title="<?php echo esc_attr($product_name); ?>">
 	                                                    <div class="product-thumb-hover">
-	                                                        <img src="<?php echo esc_url($main_image_url); ?>" <?php echo $this->carousel_img_attrs( 'wp-post-image main-img' ); ?> alt="<?php echo esc_attr($main_image_alt); ?>">
-	                                                        <img src="<?php echo esc_url($hover_image_url); ?>" <?php echo $this->carousel_img_attrs( 'hover-image1 back' ); ?> alt="<?php echo esc_attr($product_name); ?>">
+	                                                        <img src="<?php echo esc_url($main_image_url); ?>" <?php echo $this->carousel_img_attrs( $main_image_url, 'wp-post-image main-img' ); ?> alt="<?php echo esc_attr($main_image_alt); ?>">
+	                                                        <img src="<?php echo esc_url($hover_image_url); ?>" <?php echo $this->carousel_img_attrs( $hover_image_url, 'hover-image1 back' ); ?> alt="<?php echo esc_attr($product_name); ?>">
 	                                                    </div>
 	                                                </a>
 	                                            </div>
@@ -714,8 +692,8 @@ class GM_Carousels {
 	                                        <div class="item-detail">
 	                                            <div class="item-img products-thumb">
 	                                                <a href="<?php echo esc_url($product_url); ?>" class="product-image-link" title="<?php echo esc_attr($product_name); ?>">
-	                                                    <img src="<?php echo esc_url($main_image_url); ?>" alt="<?php echo esc_attr($main_image_alt); ?>" <?php echo $this->carousel_img_attrs( 'main-image wp-post-image' ); ?>>
-	                                                    <img src="<?php echo esc_url($secondary_image_url); ?>" alt="<?php echo esc_attr($product_name); ?>" <?php echo $this->carousel_img_attrs( 'secondary-image wp-post-image' ); ?>>
+	                                                    <img src="<?php echo esc_url($main_image_url); ?>" alt="<?php echo esc_attr($main_image_alt); ?>" <?php echo $this->carousel_img_attrs( $main_image_url, 'main-image wp-post-image' ); ?>>
+	                                                    <img src="<?php echo esc_url($secondary_image_url); ?>" alt="<?php echo esc_attr($product_name); ?>" <?php echo $this->carousel_img_attrs( $secondary_image_url, 'secondary-image wp-post-image' ); ?>>
 	                                                </a>
 	                                                
 	                                                <div class="hover-add-to-cart">
@@ -841,7 +819,7 @@ class GM_Carousels {
 	                    ?>
 	                        <div class="swiper-slide">
 	                            <div class="homepage-slider-image-wrapper">
-	                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>" <?php echo $this->carousel_img_attrs(); ?>>
+	                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>" <?php echo $this->carousel_img_attrs( $image_url ); ?>>
 	                            </div>
 	                        </div>
 	                    <?php endforeach; ?>
@@ -1003,7 +981,7 @@ class GM_Carousels {
 	                            <div class="swiper-slide">
 	                                <a href="<?php echo esc_url(get_term_link($cat)); ?>" class="category-carousel-item">
 	                                    <div class="category-carousel-image">
-	                                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($cat->name); ?>" <?php echo $this->carousel_img_attrs(); ?>>
+	                                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($cat->name); ?>" <?php echo $this->carousel_img_attrs( $image_url ); ?>>
 	                                    </div>
 	                                    <div class="category-carousel-info">
 	                                        <h4 class="category-carousel-name"><?php echo esc_html($cat->name); ?></h4>
