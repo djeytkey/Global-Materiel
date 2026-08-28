@@ -6,38 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 class GM_Security {
 
 	public function __construct() {
-		add_filter('script_loader_tag', function($tag, $handle, $src) {
-		    if (strpos($src, 'http') === 0 && strpos($src, home_url()) === false) {
-		        $src = str_replace('://', 'https://', $src);
-		        $src = str_replace('http://', 'https://', $src);
-		        
-		        if (strpos($tag, 'crossorigin') === false) {
-		            $tag = str_replace(' src', ' crossorigin="anonymous" src', $tag);
-		        }
-		    }
-		    return $tag;
-		}, 10, 3);
-		add_filter('style_loader_tag', function($tag, $handle, $src) {
-		    if (strpos($src, 'http') === 0 && strpos($src, home_url()) === false) {
-		        $src = str_replace('://', 'https://', $src);
-		        $src = str_replace('http://', 'https://', $src);
-		        
-		        if (strpos($tag, 'crossorigin') === false) {
-		            $tag = str_replace(' href', ' crossorigin="anonymous" href', $tag);
-		        }
-		    }
-		    return $tag;
-		}, 10, 3);
-		add_filter('rest_authentication_errors', function($result) {
-		    if (!empty($result)) {
-		        return $result;
-		    }
-		
-		    if (!is_user_logged_in()) {
-		        return new WP_Error('rest_not_logged_in', 'Vous devez être connecté pour accéder à l\'API REST.', array('status' => 401));
-		    }
-		    return $result;
-		});
+		add_filter('script_loader_tag', array( $this, 'force_https_crossorigin_on_external_assets' ), 10, 3);
+		add_filter('style_loader_tag', array( $this, 'force_https_crossorigin_on_external_styles' ), 10, 3);
+		add_filter('rest_authentication_errors', array( $this, 'protect_rest_api' ));
 		add_action('init', function() {
 		    if (is_admin() && !is_user_logged_in()) {
 		        return;
@@ -48,7 +19,7 @@ class GM_Security {
 		        exit;
 		    }
 		
-		    if (defined('REST_REQUEST') && REST_REQUEST && !is_user_logged_in()) {
+		    if (defined('REST_REQUEST') && REST_REQUEST && !is_user_logged_in() && ! $this->is_allowed_public_rest_request()) {
 		        wp_die('Non autorisé', 'Accès refusé', array('response' => 403));
 		    }
 		});
@@ -104,6 +75,68 @@ class GM_Security {
 	// SÉCURITÉ - DÉSACTIVER XML-RPC
 	// SÉCURITÉ - LIMITER TENTATIVES CONNEXION
 	// MASQUER LES MISES À JOUR ALL-IN-ONE WP MIGRATION (GARDER LES VERSIONS ACTUELLES)
+
+	private function is_analytics_asset_src( $src ) {
+		$host = wp_parse_url( $src, PHP_URL_HOST );
+		if ( ! $host ) {
+			return false;
+		}
+		$host = strtolower( $host );
+		$needles = array(
+			'google-analytics.com',
+			'googletagmanager.com',
+			'googleadservices.com',
+			'doubleclick.net',
+			'monsterinsights.com',
+		);
+		foreach ( $needles as $needle ) {
+			if ( false !== strpos( $host, $needle ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function is_allowed_public_rest_request() {
+		$uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+		return (bool) preg_match( '#/wp-json/(monsterinsights|google-site-kit|wc/store)#', $uri );
+	}
+
+	public function protect_rest_api( $result ) {
+		if ( ! empty( $result ) ) {
+			return $result;
+		}
+		if ( is_user_logged_in() || $this->is_allowed_public_rest_request() ) {
+			return $result;
+		}
+		return new WP_Error( 'rest_not_logged_in', 'Vous devez être connecté pour accéder à l\'API REST.', array( 'status' => 401 ) );
+	}
+
+	public function force_https_crossorigin_on_external_assets( $tag, $handle, $src ) {
+		if ( $this->is_analytics_asset_src( $src ) ) {
+			return $tag;
+		}
+		if ( strpos( $src, 'http' ) !== 0 || strpos( $src, home_url() ) !== false ) {
+			return $tag;
+		}
+		if ( strpos( $tag, 'crossorigin' ) === false ) {
+			$tag = str_replace( ' src', ' crossorigin="anonymous" src', $tag );
+		}
+		return $tag;
+	}
+
+	public function force_https_crossorigin_on_external_styles( $tag, $handle, $src ) {
+		if ( $this->is_analytics_asset_src( $src ) ) {
+			return $tag;
+		}
+		if ( strpos( $src, 'http' ) !== 0 || strpos( $src, home_url() ) !== false ) {
+			return $tag;
+		}
+		if ( strpos( $tag, 'crossorigin' ) === false ) {
+			$tag = str_replace( ' href', ' crossorigin="anonymous" href', $tag );
+		}
+		return $tag;
+	}
 
 	/**
 	 * Plugins All-in-One WP Migration à figer sur la version installée.

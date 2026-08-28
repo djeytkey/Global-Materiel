@@ -160,7 +160,7 @@ class GM_Carousels {
 	                
 	                $is_current = (is_product_category() && get_queried_object_id() === $term->term_id) ? ' is-current' : '';
 	            ?>
-	                <a href="<?php echo esc_url($link); ?>" class="category-item<?php echo esc_attr($is_current); ?>">
+	                <a href="<?php echo esc_url($link); ?>" class="category-item monsterinsights-no-tracking<?php echo esc_attr($is_current); ?>" data-vars-ga-dont-track="true">
 	                    <div class="category-item-image">
 	                        <img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($term->name); ?>" <?php echo $this->carousel_img_attrs( $img_url ); ?>>
 	                    </div>
@@ -172,9 +172,13 @@ class GM_Carousels {
 	
 	    <script>
 	    jQuery(function ($) {
+	        var gmSlickReady = false;
 	        function gmInitCategoryCarousel() {
+	            if (gmSlickReady || typeof $.fn.slick !== 'function') {
+	                return gmSlickReady;
+	            }
 	            var $carousel = $('.product-categories-carousel');
-	            if (!$carousel.length || typeof $.fn.slick !== 'function') {
+	            if (!$carousel.length) {
 	                return false;
 	            }
 	            $carousel.each(function () {
@@ -198,22 +202,15 @@ class GM_Carousels {
 	                    ]
 	                });
 	            });
-	            return true;
+	            gmSlickReady = $carousel.hasClass('slick-initialized') || $carousel.find('.slick-track').length > 0;
+	            return gmSlickReady;
 	        }
 
-	        if (gmInitCategoryCarousel()) {
-	            return;
-	        }
-
-	        $(window).on('load', gmInitCategoryCarousel);
-
-	        var tries = 0;
-	        var timer = setInterval(function () {
-	            tries++;
-	            if (gmInitCategoryCarousel() || tries > 40) {
-	                clearInterval(timer);
-	            }
-	        }, 250);
+	        $(window).on('load', function () {
+	            setTimeout(gmInitCategoryCarousel, 0);
+	            setTimeout(gmInitCategoryCarousel, 800);
+	        });
+	        gmInitCategoryCarousel();
 	    });
 	    </script>
 	    <?php

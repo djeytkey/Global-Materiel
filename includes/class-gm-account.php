@@ -5,11 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class GM_Account {
 
+	private $override_login_texts = false;
+
 	public function __construct() {
+		add_action( 'wp', array( $this, 'detect_customer_account_page' ) );
 		add_action( 'woocommerce_before_customer_login_form', array( $this, 'custom_capture_login_form' ), 0);
 		add_action( 'woocommerce_after_customer_login_form', array( $this, 'custom_replace_login_form' ), 999);
 		add_filter( 'gettext', array( $this, 'custom_login_texts_override' ), 999, 3);
-		add_filter( 'ngettext', array( $this, 'custom_login_texts_override' ), 999, 3);
 	}
 
 	// FORCER L'UTILISATION DU TEMPLATE FORM-LOGIN DU PLUGIN
@@ -32,13 +34,18 @@ class GM_Account {
 	    }
 	}
 
+	/**
+	 * Ne jamais appeler is_account_page() / current_user_can() dans gettext :
+	 * MonsterInsights traduit énormément de chaînes et ça part en boucle mémoire.
+	 */
+	public function detect_customer_account_page() {
+		$this->override_login_texts = function_exists( 'is_account_page' )
+			&& is_account_page()
+			&& ! current_user_can( 'manage_options' );
+	}
+
 	public function custom_login_texts_override($translated_text, $text, $domain) {
-	    // gettext peut s'exécuter avant le chargement de WooCommerce
-	    if ( ! function_exists( 'is_account_page' ) || ! is_account_page() ) {
-	        return $translated_text;
-	    }
-	    
-	    if (current_user_can('manage_options')) {
+	    if ( ! $this->override_login_texts ) {
 	        return $translated_text;
 	    }
 	    
