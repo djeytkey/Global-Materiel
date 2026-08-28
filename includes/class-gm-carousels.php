@@ -20,6 +20,15 @@ class GM_Carousels {
 		add_shortcode( 'category_carousel', array( $this, 'render_category_carousel_shortcode' ));
 	}
 
+	/**
+	 * Attributs anti-lazy pour les images de carousels.
+	 * Native lazy + ShortPixel + LiteSpeed cassent les slides hors viewport.
+	 */
+	private function carousel_img_attrs( $extra_class = '' ) {
+		$classes = trim( 'skip-lazy ' . $extra_class );
+		return 'class="' . esc_attr( $classes ) . '" loading="eager" decoding="async" data-no-lazy="1" data-skip-lazy="1" data-spai-excluded="true"';
+	}
+
 	// SHORTCODE CARROUSEL DES CATÉGORIES (SLICK)
 	// SHORTCODE SIDEBAR CATÉGORIES
 	// SHORTCODE CARROUSEL PRODUITS ASSOCIÉS
@@ -81,7 +90,7 @@ class GM_Carousels {
 	            ?>
 	                <a href="<?php echo esc_url($link); ?>" class="category-item<?php echo esc_attr($is_current); ?>">
 	                    <div class="category-item-image">
-	                        <img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($term->name); ?>" loading="lazy">
+	                        <img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($term->name); ?>" <?php echo $this->carousel_img_attrs(); ?>>
 	                    </div>
 	                    <span><?php echo esc_html($term->name); ?></span>
 	                </a>
@@ -324,8 +333,8 @@ class GM_Carousels {
 	                                            <div class="item-img products-thumb">
 	                                                <a href="<?php echo esc_url($rel_product_url); ?>" title="<?php echo esc_attr($rel_product_name); ?>">
 	                                                    <div class="product-thumb-hover">
-	                                                        <img src="<?php echo esc_url($main_image_url); ?>" loading="lazy" decoding="async" class="wp-post-image main-img" alt="<?php echo esc_attr($main_image_alt); ?>">
-	                                                        <img src="<?php echo esc_url($hover_image_url); ?>" loading="lazy" decoding="async" class="hover-image1 back" alt="<?php echo esc_attr($rel_product_name); ?>">
+	                                                        <img src="<?php echo esc_url($main_image_url); ?>" <?php echo $this->carousel_img_attrs( 'wp-post-image main-img' ); ?> alt="<?php echo esc_attr($main_image_alt); ?>">
+	                                                        <img src="<?php echo esc_url($hover_image_url); ?>" <?php echo $this->carousel_img_attrs( 'hover-image1 back' ); ?> alt="<?php echo esc_attr($rel_product_name); ?>">
 	                                                    </div>
 	                                                </a>
 	                                            </div>
@@ -476,8 +485,8 @@ class GM_Carousels {
 	                                            <div class="item-img products-thumb">
 	                                                <a href="<?php echo esc_url($product_url); ?>" title="<?php echo esc_attr($product_name); ?>">
 	                                                    <div class="product-thumb-hover">
-	                                                        <img src="<?php echo esc_url($main_image_url); ?>" loading="lazy" decoding="async" class="wp-post-image main-img" alt="<?php echo esc_attr($main_image_alt); ?>">
-	                                                        <img src="<?php echo esc_url($hover_image_url); ?>" loading="lazy" decoding="async" class="hover-image1 back" alt="<?php echo esc_attr($product_name); ?>">
+	                                                        <img src="<?php echo esc_url($main_image_url); ?>" <?php echo $this->carousel_img_attrs( 'wp-post-image main-img' ); ?> alt="<?php echo esc_attr($main_image_alt); ?>">
+	                                                        <img src="<?php echo esc_url($hover_image_url); ?>" <?php echo $this->carousel_img_attrs( 'hover-image1 back' ); ?> alt="<?php echo esc_attr($product_name); ?>">
 	                                                    </div>
 	                                                </a>
 	                                            </div>
@@ -634,8 +643,8 @@ class GM_Carousels {
 	                                        <div class="item-detail">
 	                                            <div class="item-img products-thumb">
 	                                                <a href="<?php echo esc_url($product_url); ?>" class="product-image-link" title="<?php echo esc_attr($product_name); ?>">
-	                                                    <img src="<?php echo esc_url($main_image_url); ?>" alt="<?php echo esc_attr($main_image_alt); ?>" class="main-image wp-post-image" loading="lazy">
-	                                                    <img src="<?php echo esc_url($secondary_image_url); ?>" alt="<?php echo esc_attr($product_name); ?>" class="secondary-image wp-post-image" loading="lazy">
+	                                                    <img src="<?php echo esc_url($main_image_url); ?>" alt="<?php echo esc_attr($main_image_alt); ?>" <?php echo $this->carousel_img_attrs( 'main-image wp-post-image' ); ?>>
+	                                                    <img src="<?php echo esc_url($secondary_image_url); ?>" alt="<?php echo esc_attr($product_name); ?>" <?php echo $this->carousel_img_attrs( 'secondary-image wp-post-image' ); ?>>
 	                                                </a>
 	                                                
 	                                                <div class="hover-add-to-cart">
@@ -760,7 +769,7 @@ class GM_Carousels {
 	                    ?>
 	                        <div class="swiper-slide">
 	                            <div class="homepage-slider-image-wrapper">
-	                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>" loading="lazy">
+	                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>" <?php echo $this->carousel_img_attrs(); ?>>
 	                            </div>
 	                        </div>
 	                    <?php endforeach; ?>
@@ -922,7 +931,7 @@ class GM_Carousels {
 	                            <div class="swiper-slide">
 	                                <a href="<?php echo esc_url(get_term_link($cat)); ?>" class="category-carousel-item">
 	                                    <div class="category-carousel-image">
-	                                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($cat->name); ?>" loading="lazy">
+	                                        <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($cat->name); ?>" <?php echo $this->carousel_img_attrs(); ?>>
 	                                    </div>
 	                                    <div class="category-carousel-info">
 	                                        <h4 class="category-carousel-name"><?php echo esc_html($cat->name); ?></h4>
