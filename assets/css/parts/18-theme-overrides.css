@@ -1606,10 +1606,10 @@ form#yith-ywraq-form thead tr th {
 
 @media (min-width: 1280px) {
     .product-categories-carousel .slick-track {
-        min-width: 1900px;
+        min-width: 0;
     }
     .category-item.slick-slide {
-        min-width: 250px;
+        min-width: 0;
     }
     body.page-id-9653 {
         background-color: #edf2f4 !important;
@@ -1792,8 +1792,29 @@ a.discovercat-btn {
 }
 
 .product-categories-carousel {
-    display: flex;
-    gap: 15px;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.product-categories-carousel-wrapper {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.product-categories-carousel .slick-track {
+    min-width: 0;
+}
+
+.product-categories-carousel .category-item.slick-slide {
+    min-width: 0;
+    box-sizing: border-box;
+    padding-left: 7.5px;
+    padding-right: 7.5px;
 }
 
 .category-item {
