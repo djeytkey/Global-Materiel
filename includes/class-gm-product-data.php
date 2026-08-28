@@ -6,7 +6,59 @@ if ( ! defined( 'ABSPATH' ) ) {
 class GM_Product_Data {
 
 	public function __construct() {
-		add_shortcode( 'custom_product_data', array( $this, 'render_custom_product_data_shortcode' ));
+		add_shortcode( 'custom_product_data', array( $this, 'render_custom_product_data_shortcode' ) );
+		add_filter( 'woocommerce_attribute', array( $this, 'strip_attribute_term_links' ), 20, 3 );
+		add_filter( 'woocommerce_display_product_attributes', array( $this, 'attributes_as_plain_text' ), 20, 2 );
+	}
+
+	/**
+	 * Affiche les valeurs d'attributs WooCommerce en texte, sans lien vers les archives.
+	 *
+	 * @param array      $product_attributes Attributs prêts à l'affichage (label, value).
+	 * @param WC_Product $product            Produit concerné.
+	 * @return array
+	 */
+	public function attributes_as_plain_text( $product_attributes, $product ) {
+		if ( ! is_array( $product_attributes ) ) {
+			return $product_attributes;
+		}
+
+		foreach ( $product_attributes as $key => $attribute ) {
+			if ( empty( $attribute['value'] ) || ! is_string( $attribute['value'] ) ) {
+				continue;
+			}
+
+			$product_attributes[ $key ]['value'] = $this->strip_links_from_html( $attribute['value'] );
+		}
+
+		return $product_attributes;
+	}
+
+	/**
+	 * Filet de sécurité : même traitement si un thème/widget passe par woocommerce_attribute.
+	 *
+	 * @param string $value Valeur HTML de l'attribut.
+	 * @return string
+	 */
+	public function strip_attribute_term_links( $value ) {
+		return $this->strip_links_from_html( $value );
+	}
+
+	/**
+	 * Retire les balises <a> tout en conservant le texte et le markup WooCommerce (p, br…).
+	 *
+	 * @param mixed $html HTML de la valeur d'attribut.
+	 * @return mixed
+	 */
+	private function strip_links_from_html( $html ) {
+		if ( ! is_string( $html ) || '' === $html ) {
+			return $html;
+		}
+
+		$allowed = wp_kses_allowed_html( 'post' );
+		unset( $allowed['a'] );
+
+		return wp_kses( $html, $allowed );
 	}
 
 	// SHORTCODE POUR AFFICHER LES CHAMPS PERSONNALISÉS DANS ELEMENTOR
