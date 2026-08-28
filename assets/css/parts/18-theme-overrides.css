@@ -1934,7 +1934,7 @@ a.discovercat-btn {
         z-index: 9999;
     }
     .product-categories-carousel .slick-prev {
-        left: 0 !important;
+        left: -10 !important;
     }
     .product-categories-carousel .slick-prev, .product-categories-carousel .slick-next {
         top: 42% !important;
